@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BAT — Expansión Tambo</title>
+<style>
+  :root{
+    /* Paleta oficial British American Tobacco sobre fondo blanco */
+    --navy-deep:   #0d2c5c;
+    --navy:        #17468B;
+    --navy-panel:  #ffffff;
+    --navy-panel-2:#f2f5fa;
+    --border:      #d7dfec;
+    --gold:        #FAB41E;
+    --gold-2:      #c98200;
+    --white:       #ffffff;
+    --text:        #16233a;
+    --text-dim:    #66748f;
+    --green: #1f9d55;
+    --red:   #d93030;
+    --gray:  #7d90ac;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Segoe UI', Arial, sans-serif;
+    background:#ffffff;
+    color:var(--text);
+    padding:28px 20px 60px;
+  }
+  .wrap{max-width:1320px;margin:0 auto;}
+  header{
+    display:flex;justify-content:space-between;align-items:flex-end;
+    border-bottom:3px solid var(--gold);
+    padding-bottom:18px;margin-bottom:26px;flex-wrap:wrap;gap:12px;
+  }
+  .brand{display:flex;align-items:center;gap:14px;}
+  .brand-mark{
+    width:46px;height:46px;border-radius:10px;
+    background:linear-gradient(135deg, var(--gold), #c98200);
+    display:flex;align-items:center;justify-content:center;
+    font-weight:800;color:#0d2c5c;font-size:15px;letter-spacing:0.5px;
+  }
+  .brand h1{margin:0;font-size:22px;letter-spacing:0.5px;color:var(--navy-deep);}
+  .brand p{margin:2px 0 0;color:var(--gold-2);font-size:12px;text-transform:uppercase;letter-spacing:1.4px;font-weight:600;}
+  .meta{text-align:right;color:var(--text-dim);font-size:12.5px;}
+  .meta b{color:var(--gold-2);}
+
+  /* ---- Global filter bar ---- */
+  .global-filter{
+    display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+    background:var(--navy-panel);border:1px solid var(--border);border-radius:12px;
+    padding:14px 18px;margin-bottom:22px;
+  }
+  .global-filter label{font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--gold-2);font-weight:700;}
+  .global-filter select{
+    background:var(--navy-panel-2);border:1px solid var(--border);color:var(--text);
+    padding:9px 14px;border-radius:8px;font-size:13.5px;outline:none;min-width:200px;
+  }
+  .global-filter select:focus{border-color:var(--gold);}
+  .global-filter .hint{color:var(--text-dim);font-size:12px;margin-left:auto;}
+
+  .kpis{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
+    gap:14px;margin-bottom:26px;
+  }
+  .kpi{
+    background:linear-gradient(180deg, var(--navy-panel-2), var(--navy-panel));
+    border:1px solid var(--border);border-radius:12px;padding:16px 18px;
+    position:relative;overflow:hidden;box-shadow:0 2px 10px rgba(13,44,92,0.06);
+  }
+  .kpi::before{
+    content:'';position:absolute;top:0;left:0;width:4px;height:100%;
+    background:var(--gold);
+  }
+  .kpi .label{color:var(--text-dim);font-size:11.5px;text-transform:uppercase;letter-spacing:1px;}
+  .kpi .value{font-size:30px;font-weight:700;margin-top:4px;color:var(--navy-deep);}
+  .kpi .sub{font-size:12px;color:var(--text-dim);margin-top:4px;}
+  .kpi.good::before{background:var(--green);}
+  .kpi.bad::before{background:var(--red);}
+  .kpi.gray::before{background:var(--gray);}
+
+  .grid2{display:grid;grid-template-columns:1.3fr 1fr;gap:18px;margin-bottom:22px;}
+  @media (max-width:900px){.grid2{grid-template-columns:1fr;}}
+
+  .panel{
+    background:var(--navy-panel);border:1px solid var(--border);border-radius:14px;
+    padding:18px 20px;box-shadow:0 2px 10px rgba(13,44,92,0.06);
+  }
+  .panel h2{
+    margin:0 0 14px;font-size:14px;text-transform:uppercase;letter-spacing:1px;
+    color:var(--gold-2);border-bottom:1px solid var(--border);padding-bottom:10px;
+  }
+
+  .bar-row{display:flex;align-items:center;gap:10px;margin-bottom:9px;font-size:12.5px;}
+  .bar-row .name{width:150px;color:var(--text-dim);flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .bar-track{flex:1;background:var(--navy-deep);border-radius:6px;height:16px;overflow:hidden;border:1px solid var(--border);}
+  .bar-fill{height:100%;background:linear-gradient(90deg, var(--gold), var(--gold-2));border-radius:6px;}
+  .bar-num{width:34px;text-align:right;color:var(--navy-deep);font-weight:600;}
+
+  .donut-wrap{display:flex;align-items:center;justify-content:center;gap:22px;flex-wrap:wrap;}
+  svg.donut{transform:rotate(-90deg);}
+  .legend{display:flex;flex-direction:column;gap:8px;font-size:13px;}
+  .legend .dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:8px;}
+
+  /* ---- City progress panel ---- */
+  .city-progress{
+    display:grid;grid-template-columns:repeat(auto-fit, minmax(320px,1fr));
+    gap:12px;
+  }
+  .city-toolbar{
+    display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px;
+  }
+  .city-toolbar input, .city-toolbar select{
+    background:var(--navy-panel-2);border:1px solid var(--border);color:var(--text);
+    padding:9px 12px;border-radius:8px;font-size:13px;outline:none;
+  }
+  .city-toolbar input{flex:1;min-width:180px;}
+  .city-toolbar input:focus, .city-toolbar select:focus{border-color:var(--gold);}
+  .toggle-group{display:flex;gap:6px;background:var(--navy-panel-2);border:1px solid var(--border);border-radius:8px;padding:3px;}
+  .toggle-btn{
+    background:transparent;border:none;color:var(--text-dim);font-size:12.5px;font-weight:600;
+    padding:7px 13px;border-radius:6px;cursor:pointer;transition:background .15s,color .15s;
+  }
+  .toggle-btn:hover{color:var(--navy-deep);}
+  .toggle-btn.active{background:var(--navy-deep);color:#ffffff;}
+  .city-card{
+    background:var(--navy-panel-2);border:1px solid var(--border);border-radius:10px;
+    padding:12px 16px;cursor:pointer;transition:border-color .15s, transform .1s;
+  }
+  .city-card:hover{border-color:var(--gold);transform:translateY(-1px);}
+  .city-card.active{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold) inset;}
+  .city-card.dim{opacity:.45;}
+  .city-card .row1{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+  .city-card .cname{font-weight:700;color:var(--navy-deep);font-size:13.5px;}
+  .city-card .ctotal{color:var(--text-dim);font-size:11.5px;}
+  .progress-mini{display:flex;gap:14px;flex-wrap:wrap;}
+  .progress-mini .pm{flex:1;min-width:120px;}
+  .progress-mini .pm-label{font-size:10.5px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;display:flex;justify-content:space-between;}
+  .progress-mini .pm-track{height:8px;background:var(--navy-deep);border-radius:4px;overflow:hidden;border:1px solid var(--border);}
+  .progress-mini .pm-fill{height:100%;border-radius:4px;}
+  .pm-fill.ejec{background:linear-gradient(90deg,#2fc76e,#7ee7a8);}
+  .pm-fill.placa{background:linear-gradient(90deg,var(--gold),var(--gold-2));}
+  .pm-fill.disp{background:linear-gradient(90deg,#17468B,#4d84d6);}
+
+  .filters{
+    display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;
+  }
+  .filters select, .filters input{
+    background:var(--navy-panel-2);border:1px solid var(--border);color:var(--text);
+    padding:9px 12px;border-radius:8px;font-size:13px;outline:none;
+  }
+  .filters input{flex:1;min-width:200px;}
+  .filters select:focus, .filters input:focus{border-color:var(--gold);}
+
+  table{width:100%;border-collapse:collapse;font-size:12.5px;}
+  thead th{
+    text-align:left;color:var(--gold-2);text-transform:uppercase;font-size:11px;
+    letter-spacing:0.6px;padding:10px 10px;border-bottom:2px solid var(--border);
+    position:sticky;top:0;background:var(--navy-panel);white-space:nowrap;
+  }
+  tbody td{padding:9px 10px;border-bottom:1px solid var(--border);white-space:nowrap;color:var(--text);}
+  tbody tr:hover{background:var(--navy-panel-2);}
+  .table-scroll{max-height:560px;overflow:auto;border:1px solid var(--border);border-radius:10px;}
+
+  .badge{padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:0.3px;display:inline-block;}
+  .badge.si, .badge.efectivo{background:rgba(47,199,110,0.18);color:var(--green);border:1px solid rgba(47,199,110,0.45);}
+  .badge.no, .badge.noefectivo{background:rgba(239,75,75,0.18);color:var(--red);border:1px solid rgba(239,75,75,0.45);}
+  .badge.pendiente{background:rgba(125,144,172,0.2);color:var(--text-dim);border:1px solid rgba(125,144,172,0.45);}
+
+  .obs-cell{max-width:260px;white-space:normal;color:var(--text-dim);font-size:11.5px;}
+  a.foto-link{color:var(--gold-2);text-decoration:none;font-size:11.5px;}
+  a.foto-link:hover{text-decoration:underline;}
+
+  footer{text-align:center;color:var(--text-dim);font-size:11.5px;margin-top:30px;}
+  .count-tag{color:var(--text-dim);font-size:12px;margin-left:auto;align-self:center;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="brand">
+      <div class="brand-mark">BAT</div>
+      <div>
+        <h1>Expansión Tambo — Placa &amp; Dispenser</h1>
+        <p>British American Tobacco · Status de implementación</p>
+      </div>
+    </div>
+    <div class="meta">
+      Actualizado: <b id="fecha-actualizacion"></b><br>
+      Fuente: BBDD_EXPANSIÓN_TAMBO.xlsx
+    </div>
+  </header>
+
+  <div class="global-filter">
+    <label for="fCiudadGlobal">Filtrar por ciudad</label>
+    <select id="fCiudadGlobal"><option value="">Todas las ciudades</option></select>
+    <span class="hint" id="globalHint"></span>
+  </div>
+
+  <div class="kpis" id="kpis"></div>
+
+  <div class="grid2">
+    <div class="panel">
+      <h2>Status de ejecución</h2>
+      <div class="donut-wrap">
+        <svg class="donut" id="donutStatus" width="150" height="150" viewBox="0 0 150 150"></svg>
+        <div class="legend" id="legendStatus"></div>
+      </div>
+    </div>
+    <div class="panel">
+      <h2>Placa vs Dispenser implementado</h2>
+      <div id="placaDispenserBars"></div>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-bottom:22px;">
+    <h2>Avance por ciudad</h2>
+    <div class="city-toolbar">
+      <input type="text" id="cityBusca" placeholder="Buscar ciudad...">
+      <select id="citySort">
+        <option value="total">Ordenar: más tiendas primero</option>
+        <option value="avance_desc">Ordenar: mayor avance primero</option>
+        <option value="avance_asc">Ordenar: menor avance primero (prioridad)</option>
+        <option value="az">Ordenar: alfabético (A-Z)</option>
+      </select>
+      <div class="toggle-group">
+        <button type="button" class="toggle-btn active" id="toggleTodas">Todas</button>
+        <button type="button" class="toggle-btn" id="toggleAvance">Con avance</button>
+        <button type="button" class="toggle-btn" id="togglePend">Pendientes</button>
+      </div>
+    </div>
+    <div class="city-progress" id="cityProgress"></div>
+  </div>
+
+  <div class="panel" style="margin-bottom:22px;">
+    <h2>Detalle por tienda</h2>
+    <div class="filters">
+      <select id="fCiudad"><option value="">Todas las ciudades</option></select>
+      <select id="fStatus"><option value="">Todos los status</option></select>
+      <select id="fPlaca"><option value="">Placa (Sí/No)</option></select>
+      <select id="fDispenser"><option value="">Dispenser (Sí/No)</option></select>
+      <select id="fTipo"><option value="">Tipo (Tambo/Multicat.)</option></select>
+      <input type="text" id="fBusca" placeholder="Buscar por tienda, distrito, dirección o ID...">
+      <span class="count-tag" id="countTag"></span>
+    </div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>ID Store</th>
+            <th>Tienda</th>
+            <th>Ciudad</th>
+            <th>Distrito</th>
+            <th>Fecha</th>
+            <th>Status</th>
+            <th>Placa</th>
+            <th>Dispenser</th>
+            <th>Cigarrera</th>
+            <th>Cant.</th>
+            <th>Tipo</th>
+            <th>Observaciones</th>
+            <th>Foto</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <footer>Reporte generado a partir de BBDD_EXPANSIÓN_TAMBO.xlsx — TT Audit para British American Tobacco</footer>
+</div>
+
+<script>
+const DATA = [{"ID STORE": 393264, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - POSTES", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "STAR PIANO 4.0", "CANTIDAD ": 2, "D. TAMBO": "D. MULTICATEGORÍA", "DISTRITO": "SAN JUAN DE LURIGANCHO", "DIRECCIÓN": "AV. PROCERES DE LA INDEPENDENCIA 2143 MZ W LT 23 APV SAN HILARION_ SJL", "OBSERVACIONES": null, "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_393264_3008_2026-07-13_2212_cr.jpg", "F. EJECUCIÓM": "2026-07-13"}, {"ID STORE": 488555, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - PUCUSANA", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "STAR PIANO 2.0", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "PUCUSANA", "DIRECCIÓN": "JR. CALLAO N° 101 MZ 10 LT 12 0001-ZONA PUEBLO (U) PUCUSANA", "OBSERVACIONES": null, "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_488555_3008_2026-07-14_1815_d2.jpg", "F. EJECUCIÓM": "2026-07-13"}, {"ID STORE": 712645, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - ALLENDE-C1-SURCO", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "STAR MASSI", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "SURCO", "DIRECCIÓN": "JR. LOS GERANIOS, MAZ. E, LOTE 1, URB. PROLOG. SAN IGNACIO DE MONTERRICO, DISTRITO DE SANTIAGO DE SURCO.", "OBSERVACIONES": "ACTIVO EN MAL ESTADO, SE REVISITARA PARA MANTENIMIENTO", "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_712645_3008_2026-07-03_2248_cn.jpg", "F. EJECUCIÓM": "2026-07-03"}, {"ID STORE": 712644, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - CIRCUNVALACION-C4-SURCO", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "STAR MASSI", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "SURCO", "DIRECCIÓN": "DIRECCIÓN MUNICIPAL: AV. CIRCUNVALACIÓN N° 455/453 SECTOR 07 - SANTIAGO DE SURCO", "OBSERVACIONES": null, "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_712644_3008_2026-07-03_2202_cn.jpg", "F. EJECUCIÓM": "2026-07-03"}, {"ID STORE": 710758, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - REPUBLICADECOLOMBIA-C5", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "CIG BACK W. PIXEL 3.0 MD 12", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "SAN ISIDRO", "DIRECCIÓN": "Av. República de Colombia N° 545, San Isidro.", "OBSERVACIONES": null, "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_710758_3008_2026-07-03_2051_cn.jpg", "F. EJECUCIÓM": "2026-07-03"}, {"ID STORE": 710923, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - SCHREIBER-C1", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "CIG BACK W. PIXEL 3.0 MD 12", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "SAN ISIDRO", "DIRECCIÓN": "CALLE GERMAN SCHREIBER # 120 L OCAL COMERCIAL 3 - URBANIZACIÓN SANTA ANA , SAN ISIDRO", "OBSERVACIONES": "ACTIVO EN MAL ESTADO, SE REVISITARA PARA MANTENIMIENTO", "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_710923_3008_2026-07-03_1957_cn.jpg", "F. EJECUCIÓM": "2026-07-03"}, {"ID STORE": 647011, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - DERTEANO C1", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "CIG AEREA PIXEL 3.0 TRANSFORMADA", "CANTIDAD ": 1, "D. TAMBO": "D. MULTICATEGORÍA", "DISTRITO": "SAN ISIDRO", "DIRECCIÓN": "Calle Dionisio Derteano N° 144- Local 136 Distrito de San Isidro,", "OBSERVACIONES": null, "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_647011_3008_2026-07-03_1938_cn.jpg", "F. EJECUCIÓM": "2026-07-03"}, {"ID STORE": 710773, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - JPRADO-C10", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "CIG BACK W. PIXEL 3.0 MD 12", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "LA VICTORIA", "DIRECCIÓN": "Av.Javier Prado Este 1095, La Victoria", "OBSERVACIONES": null, "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_710773_3008_2026-07-03_1908_cn.jpg", "F. EJECUCIÓM": "2026-07-03"}, {"ID STORE": 711530, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - DELAIRE-C7-LAVICTORIA", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "STAR MASSI", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "LA VICTORIA", "DIRECCIÓN": "Av. Del aire ° 774-780, Mz. C-8, Lt. 7, La Victoria", "OBSERVACIONES": null, "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_711530_3008_2026-07-03_1819_cn.jpg", "F. EJECUCIÓM": "2026-07-03"}, {"ID STORE": 713470, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - AVIACION-C23-SANBORJA", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "STAR MASSI", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "SAN BORJA", "DIRECCIÓN": "Avenida Aviación N° 2379 A Mz. F Lt. 20 Urb. San Juan Marias, distrito de San Borja", "OBSERVACIONES": null, "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_713470_3008_2026-07-03_1838_cn.jpg", "F. EJECUCIÓM": "2026-07-03"}, {"ID STORE": 712642, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - GRAU-C15-BELLAVISTA", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "STAR MASSI", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "BELLAVISTA", "DIRECCIÓN": "AV. ALMIRANTE MIGUEL GRAU (ANTES AV. BUENOS AIRES) NRO. 1510- BELLAVISTA CALLAO", "OBSERVACIONES": null, "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_712642_3008_2026-07-03_1657_cn.jpg", "F. EJECUCIÓM": "2026-07-03"}, {"ID STORE": 710261, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - BOLOGNESI-C2-BARRANCO", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "CIG BACK W. PIXEL 3.0 MD 12", "CANTIDAD ": 1, "D. TAMBO": "D. MULTICATEGORÍA", "DISTRITO": "BARRANCO", "DIRECCIÓN": "Av. Gral. Francisco Bolognesi N° 203, Barranco", "OBSERVACIONES": null, "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_710261_3008_2026-07-03_1545_cp.jpg", "F. EJECUCIÓM": "2026-07-03"}, {"ID STORE": 712638, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - LOSLAURELES-C1-SURCO", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "STAR MASSI", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "SURCO", "DIRECCIÓN": "Jr. Los Laureles N° 106, Ofic. 101, - Urb. Valle Hermoso Residencial, distrito de Santiago de Surco", "OBSERVACIONES": "ACTIVO EN MAL ESTADO, SE REVISITARA PARA MANTENIMIENTO", "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_712638_3008_2026-07-03_2218_cn.jpg", "F. EJECUCIÓM": "2026-07-03"}, {"ID STORE": 392955, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - SAN-JUAN", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "CIG BACK W. PIXEL 3.0 MD 12", "CANTIDAD ": 2, "D. TAMBO": "D. MULTICATEGORÍA", "DISTRITO": "SAN JUAN DE MIRAFLORES", "DIRECCIÓN": "AV SAN JUAN NRO 928 URB SAN JUAN DE MIRAFLORES - SJM", "OBSERVACIONES": null, "LINK FOTO": "https://ibb.co/SqF1nQy", "F. EJECUCIÓM": "2026-07-07"}, {"ID STORE": 710752, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - CORREGIDOR-C26", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "CIG BACK W. PIXEL 3.0 MD 12", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "LA MOLINA", "DIRECCIÓN": "Alameda del Corregidor, S/N, Block C, Lote 11, Mz. U-3, Urbanización La Capilla (Vemtracom), distrito de La Molina", "OBSERVACIONES": null, "LINK FOTO": "https://ibb.co/FLPsD0tT", "F. EJECUCIÓM": "2026-07-07"}, {"ID STORE": 393092, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - REPUBLICANA-VES", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "CIG BACK W. PIXEL 3.0 MD 12", "CANTIDAD ": 2, "D. TAMBO": "D. MULTICATEGORÍA", "DISTRITO": "VILLA EL SALVADOR", "DIRECCIÓN": "AGR. PACHACAMAC S. 4 ETAPA SEGUNDA MZ M LT 21 ETAPA SEGUNDA ", "OBSERVACIONES": null, "LINK FOTO": "https://ibb.co/5gqK0Zs0", "F. EJECUCIÓM": "2026-07-07"}, {"ID STORE": 393089, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - PASTORSEVILLA", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "CIG BACK W. PIXEL 3.0 MD 12", "CANTIDAD ": 2, "D. TAMBO": "D. MULTICATEGORÍA", "DISTRITO": "VILLA EL SALVADOR", "DIRECCIÓN": "GRUPO 8A MZA. A LOTE. 9 SEC. 6 ", "OBSERVACIONES": null, "LINK FOTO": "https://ibb.co/BVzf8fF2", "F. EJECUCIÓM": "2026-07-07"}, {"ID STORE": 713475, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - BOLIVAR-C9", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "STAR MASSI", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "PUEBLO LIBRE", "DIRECCIÓN": "Av. Bolívar N° 947 Pueblo libre", "OBSERVACIONES": null, "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_713475_3004_2026-07-03_1933_cp.jpg", "F. EJECUCIÓM": "2026-07-03"}, {"ID STORE": 712828, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - CANEVARO-C6-LINCE", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "STAR MASSI", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "LINCE", "DIRECCIÓN": "JIRON DE ZELA FRANCISCO 1918 - LINCE", "OBSERVACIONES": "ACTIVO EN MAL ESTADO, SE REVISITARA PARA MANTENIMIENTO", "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_712828_3004_2026-07-07_1614_cp.jpg", "F. EJECUCIÓM": "2026-07-07"}, {"ID STORE": 712830, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - CARRANZA-C5-CERCADO", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "STAR MASSI", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "CERCADO DE LIMA", "DIRECCIÓN": "CA. MARIANO CARRANZA 588, CERCADO DE LIMA REF. ESQUINA CARLOS ARRIETA 1110 SECCION 1 - CERCADO DE LIMA", "OBSERVACIONES": null, "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_712830_3004_2026-07-07_1548_cp.jpg", "F. EJECUCIÓM": "2026-07-07"}, {"ID STORE": 713465, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - MEXICO-C12-LAVICTORIA", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "STAR MASSI", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "LA VICTORIA", "DIRECCIÓN": "Av.Mexico 1298 Tda.2A esquina con Calle Parinacochas (Prol) 1506 Tda 2B - La Victoria", "OBSERVACIONES": null, "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_713465_3004_2026-07-07_1717_cp.jpg", "F. EJECUCIÓM": "2026-07-07"}, {"ID STORE": 392934, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - T-ASPERO", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "STAR MASSI", "CANTIDAD ": 2, "D. TAMBO": "D. MULTICATEGORÍA", "DISTRITO": "SAN JUAN DE LURIGANCHO", "DIRECCIÓN": "MZA T LOTE 25 URB MANGOMARCA ( JRO TEMPLO ASPERO ) SJL", "OBSERVACIONES": null, "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_392934_3004_2026-07-06_2332_cp.jpg", "F. EJECUCIÓM": "2026-07-06"}, {"ID STORE": 712831, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - CHACHAPOYAS-C2-CALLAO", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "STAR MASSI", "CANTIDAD ": 1, "D. TAMBO": "D. MULTICATEGORÍA", "DISTRITO": "CALLAO", "DIRECCIÓN": "Jr. CHACHAPOYAS No 294 Urb SANTA MARIA - Callao", "OBSERVACIONES": null, "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_712831_3004_2026-07-04_1543_cp.jpg", "F. EJECUCIÓM": "2026-07-04"}, {"ID STORE": 712647, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - CAHUIDE-C10-LAPERLA", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "STAR MASSI", "CANTIDAD ": 1, "D. TAMBO": "D. MULTICATEGORÍA", "DISTRITO": "LA PERLA", "DIRECCIÓN": "JR. CAHUIDE N° 1080 MZ. 70 LT. 08 CERCADO DISTRITAL, DISTRITO DE LA PERLA", "OBSERVACIONES": null, "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_712647_3004_2026-07-04_1610_cp.jpg", "F. EJECUCIÓM": "2026-07-04"}, {"ID STORE": 713469, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - HAYADELATORRE-C4-LAPERLA", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "STAR MASSI", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "LA PERLA", "DIRECCIÓN": "Av. Víctor R. Haya de la Torre 497, URB. E. de San Miguel, distrito de La Perla, provincia del Callao", "OBSERVACIONES": null, "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_713469_3004_2026-07-04_1727_cp.jpg", "F. EJECUCIÓM": "2026-07-04"}, {"ID STORE": 710771, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - FAUCETT- C2", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "CIG BACK W. PIXEL 3.0 MD 12", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "SAN MIGUEL", "DIRECCIÓN": "Av. Elmer Faucett 216 - 230 San Miguel", "OBSERVACIONES": null, "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_710771_3004_2026-07-04_1707_cp.jpg", "F. EJECUCIÓM": "2026-07-04"}, {"ID STORE": 712840, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - UNIVERSITARIA-C6-SANMIGUEL", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "STAR MASSI", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "SAN MIGUEL", "DIRECCIÓN": "Av. Universitaria N° 601 Urb. Pando, distrito de San Miguel", "OBSERVACIONES": null, "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_712840_3004_2026-07-03_1847_cp.jpg", "F. EJECUCIÓM": "2026-07-03"}, {"ID STORE": 393252, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - BAYOVAR", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "CIG BACK W. PIXEL 3.0 ", "CANTIDAD ": 2, "D. TAMBO": "D. MULTICATEGORÍA", "DISTRITO": "SAN JUAN DE LURIGANCHO", "DIRECCIÓN": "SV. MZ O-6 LT 35 PROGRAMA CIUDAD MARISCAL SECTOR 1 _ SJL", "OBSERVACIONES": null, "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_393252_3004_2026-07-06_2152_cp.jpg", "F. EJECUCIÓM": "2026-07-06"}, {"ID STORE": 711188, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - COLONIAL-C31-CERCADO", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "STAR MASSI", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "CERCADO DE LIMA", "DIRECCIÓN": "\"Plaza Colonial n° 3145, Cercado de Lima", "OBSERVACIONES": null, "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_711188_3004_2026-07-03_2013_cp.jpg", "F. EJECUCIÓM": "2026-07-03"}, {"ID STORE": 392920, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - VENEZUELA-C9", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "STAR PIANO 3.0", "CANTIDAD ": 2, "D. TAMBO": "D. MULTICATEGORÍA", "DISTRITO": "BREÑA", "DIRECCIÓN": "AV VENEZUELA NMRO 947 BREÑA", "OBSERVACIONES": null, "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_711427_3004_2026-07-07_1732_cp.jpg", "F. EJECUCIÓM": "2026-07-07"}, {"ID STORE": 713467, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - GRIFOARGENTINA-C8-CERCADO", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "STAR MASSI", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "CERCADO DE LIMA", "DIRECCIÓN": "Av. República de Argentina N° 898, Cercado de Lima, Lima", "OBSERVACIONES": null, "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_713467_3004_2026-07-07_1413_cp.jpg", "F. EJECUCIÓM": "2026-07-07"}, {"ID STORE": 393187, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - HABICH-C5", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "CIG BACK W. PIXEL 3.0 MD 12", "CANTIDAD ": 2, "D. TAMBO": "D. MULTICATEGORÍA", "DISTRITO": "SAN MARTIN DE PORRES", "DIRECCIÓN": "AV B N 501 URB INGENIERÍA 5 ETAPA SAN MARTÍN DE PORRES LIMA", "OBSERVACIONES": null, "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_393187_3004_2026-07-04_1951_cp.jpg", "F. EJECUCIÓM": "2026-07-04"}, {"ID STORE": 626916, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - LOS ANDES", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "STAR PIANO 3.0", "CANTIDAD ": 1, "D. TAMBO": "D. MULTICATEGORÍA", "DISTRITO": "INDEPENDENCIA", "DIRECCIÓN": "Calle Los Andes Mz.A Lte 40 Panamericana Norte Industrial,Independencia", "OBSERVACIONES": null, "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_626916_3004_2026-07-06_1345_cp.jpg", "F. EJECUCIÓM": "2026-07-06"}, {"ID STORE": 392958, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - AREQUIPA-COMAS", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "CIG BACK W. PIXEL 3.0 MD 12", "CANTIDAD ": 2, "D. TAMBO": "D. MULTICATEGORÍA", "DISTRITO": "COMAS", "DIRECCIÓN": "JR UNION NRO 603 P.J PAMPA DE COMAS (MZ B LOTE 11 ZONAL 02) COMAS", "OBSERVACIONES": null, "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_392958_3004_2026-07-06_1420_cp.jpg", "F. EJECUCIÓM": "2026-07-06"}, {"ID STORE": 393306, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - LICENCIADOS", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "CIG BACK W. PIXEL 3.0 MD 12", "CANTIDAD ": 2, "D. TAMBO": "D. TAMBO", "DISTRITO": "VENTANILLA", "DIRECCIÓN": "AV. LA PLAYA MZA. P5 LOTE. 17 A.H. LOS LICENCIADOS DE VENTANILLA CN. SUR", "OBSERVACIONES": null, "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_393306_3004_2026-07-06_1707_cp.jpg", "F. EJECUCIÓM": "2026-07-06"}, {"ID STORE": 393311, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - VENTANILLA", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "CIG BACK W. PIXEL 3.0 MD 12", "CANTIDAD ": 2, "D. TAMBO": "D. TAMBO", "DISTRITO": "VENTANILLA", "DIRECCIÓN": "AV. AYACUCHO MZ G-7 LOT 14 MI PERÚ _ VENTANILLA", "OBSERVACIONES": null, "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_393311_3004_2026-07-06_1622_d2.jpg", "F. EJECUCIÓM": "2026-07-05"}, {"ID STORE": 393257, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - JARDINES", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "CIG BACK W. PIXEL 3.0 MD 12", "CANTIDAD ": 1, "D. TAMBO": "D. MULTICATEGORÍA", "DISTRITO": "SAN JUAN DE LURIGANCHO", "DIRECCIÓN": "MZ A LT 1 URB. SAN HILARION _ SJL", "OBSERVACIONES": null, "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_393257_3004_2026-07-06_2220_cp.jpg", "F. EJECUCIÓM": "2026-07-06"}, {"ID STORE": 392921, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - ALCAPARRAS-C4", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "CIG BACK W. PIXEL 3.0 MD 12", "CANTIDAD ": 2, "D. TAMBO": "D. MULTICATEGORÍA", "DISTRITO": "SAN JUAN DE LURIGANCHO", "DIRECCIÓN": "SV. MZ 45 LT. 5 -COOP. LAS FLORES - LIMA- SAN JUAN DE LURIGANCHO", "OBSERVACIONES": null, "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_392921_3004_2026-07-06_2250_cp.jpg", "F. EJECUCIÓM": "2026-07-06"}, {"ID STORE": 393189, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - JOSEGRANDA", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "CIG BACK W. PIXEL 3.0 MD 12", "CANTIDAD ": 2, "D. TAMBO": "D. MULTICATEGORÍA", "DISTRITO": "SAN MARTIN DE PORRES", "DIRECCIÓN": "AV JOSÉ GRANDA 3439 URB CONDE VILLA SEÑOR Y VALDIVIEZO SAN MARTÍN DE PORRES LIMA", "OBSERVACIONES": null, "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_393189_3004_2026-07-04_1917_cp.jpg", "F. EJECUCIÓM": "2026-07-04"}, {"ID STORE": 691820, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - LIMA-C36", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "CIG AEREA PIXEL 3.0 TRANSFORMADA", "CANTIDAD ": 1, "D. TAMBO": "D. MULTICATEGORÍA", "DISTRITO": "SAN MARTIN DE PORRES", "DIRECCIÓN": "Av. Lima N° 3620, Mz. 21, Lote 04, cuadra 36, urbanización Perú – Zona 7°, distrito de San Martín de Porres,", "OBSERVACIONES": null, "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_691820_3004_2026-07-04_1847_cp.jpg", "F. EJECUCIÓM": "2026-07-04"}, {"ID STORE": 393193, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - PERU-C36", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "CIG BACK W. PIXEL 3.0 ", "CANTIDAD ": 2, "D. TAMBO": "D. MULTICATEGORÍA", "DISTRITO": "SAN MARTIN DE PORRES", "DIRECCIÓN": "URB PERÚ MZ3 LT 32 ZONA 1 SAN MARTÍN DE PORRES LIMA.", "OBSERVACIONES": null, "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_393193_3004_2026-07-04_1814_cp.jpg", "F. EJECUCIÓM": "2026-07-04"}, {"ID STORE": 707942, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - SANTAROSA", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "STAR PIANO 3.0", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "SANTA ROSA", "DIRECCIÓN": "ASOCIACION DE VIVIENDA SANTA ROSA DE LIMA OTROS SANTA ROSA F LOTE 1 AL 14 Y 37 MZ F LT01- DISTRITO SANTA ROSA", "OBSERVACIONES": null, "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_707942_3004_2026-07-06_1524_cp.jpg", "F. EJECUCIÓM": "2026-07-06"}, {"ID STORE": 393093, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - REVOLUCION-C14", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "CIG AEREA PIXEL 3.0 TRANSFORMADA", "CANTIDAD ": 2, "D. TAMBO": "D. MULTICATEGORÍA", "DISTRITO": "VILLA EL SALVADOR", "DIRECCIÓN": "MZA N LOTE 10 PJ  AV REVOLUCION 1459 ", "OBSERVACIONES": null, "LINK FOTO": "https://ibb.co/7twDS7cC", "F. EJECUCIÓM": "2026-07-07"}, {"ID STORE": 392957, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - VILLAMARIA-C4", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "CIG BACK W. PIXEL 3.0 MD 12", "CANTIDAD ": 1, "D. TAMBO": "D. MULTICATEGORÍA", "DISTRITO": "VILLA MARIA DEL TRIUNFO", "DIRECCIÓN": "AV VILLA MARIA NRO 447 ASC VILLA MARIA TFO PRIMER HOGAR POLICIAL - CENTRAL UNIFICADA ( NRO 447-451 MZ G 4 SUB LOTE 8-A ) VILLA MARIA DEL TRIUNFO", "OBSERVACIONES": null, "LINK FOTO": "https://ibb.co/nq73xtSF", "F. EJECUCIÓM": "2026-07-07"}, {"ID STORE": 393152, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - CHOSICA", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "CIG BACK W. PIXEL 3.0 MD 12", "CANTIDAD ": 1, "D. TAMBO": "D. MULTICATEGORÍA", "DISTRITO": "CHOSICA", "DIRECCIÓN": "AV LIMA SUR 621 LURIGANCHO - CHOSICA LIMA", "OBSERVACIONES": null, "LINK FOTO": "https://ibb.co/Hfphj7r6", "F. EJECUCIÓM": "2026-07-07"}, {"ID STORE": 710998, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - DEFENSORES-C5-CHORRILLOS", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "STAR PIANO 2.0", "CANTIDAD ": 1, "D. TAMBO": "D. MULTICATEGORÍA", "DISTRITO": "CHORRILLOS", "DIRECCIÓN": "Av. Defensores Del Morro (Huaylas) Nro. 523 Urb. Chorrillos, Lima", "OBSERVACIONES": null, "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_710998_3008_2026-07-11_2348_d2.jpg", "F. EJECUCIÓM": "2026-07-11"}, {"ID STORE": 392949, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - LIRIOS", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "STAR PIANO", "CANTIDAD ": 2, "D. TAMBO": "D. MULTICATEGORÍA", "DISTRITO": "SAN JUAN DE MIRAFLORES", "DIRECCIÓN": "CALLE VIA SUR LIBRE MZ B LT 5 URB ENTEL SJM", "OBSERVACIONES": "ACTIVO EN MAL ESTADO, SE REVISITARA PARA MANTENIMIENTO", "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_392949_3008_2026-07-11_2001_d3.jpg", "F. EJECUCIÓM": "2026-07-11"}, {"ID STORE": 392956, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - TDA PACHACUTEC", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "STAR PIANO 4.0", "CANTIDAD ": 2, "D. TAMBO": "D. MULTICATEGORÍA", "DISTRITO": "VILLA MARIA DEL TRIUNFO", "DIRECCIÓN": "AV PACHACUTEC NRO 2301 P.J 1ER HOGAR POLICIAL ( ZONA 1 MZ A1 LTE 1) VILLA MARIA DEL TRIUNFO", "OBSERVACIONES": null, "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_392956_3008_2026-07-11_2040_d2.jpg", "F. EJECUCIÓM": "2026-07-11"}, {"ID STORE": 393101, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - VALLEJO", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "STAR PIANO", "CANTIDAD ": 2, "D. TAMBO": "D. MULTICATEGORÍA", "DISTRITO": "VILLA EL SALVADOR", "DIRECCIÓN": "MZ H LT 17 GRUPO RESIDENCIAL 10 SECTOR SEGUNDO", "OBSERVACIONES": null, "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_393101_3008_2026-07-11_2139_d2.jpg", "F. EJECUCIÓM": "2026-07-11"}, {"ID STORE": 393068, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - LIMA-C10", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "STAR PIANO 4.0", "CANTIDAD ": 2, "D. TAMBO": "D. MULTICATEGORÍA", "DISTRITO": "VILLA MARIA DEL TRIUNFO", "DIRECCIÓN": "AV. LIMA NRO. 1045", "OBSERVACIONES": null, "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_393068_3008_2026-07-11_2211_d2.jpg", "F. EJECUCIÓM": "2026-07-11"}, {"ID STORE": 393095, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - TDA SAN VICENTE", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "STAR PIANO 4.0", "CANTIDAD ": 2, "D. TAMBO": "D. MULTICATEGORÍA", "DISTRITO": "LURIN", "DIRECCIÓN": "NRO. S/N INT. 3 FND. SAN VICENTE U.C 10579 (TIENDA 3 SECCION A SUBLOTE 1)", "OBSERVACIONES": null, "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_393095_3008_2026-07-11_2255_d2.jpg", "F. EJECUCIÓM": "2026-07-11"}, {"ID STORE": 393201, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - TDA HABICH", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "STAR PIANO 2.0", "CANTIDAD ": 2, "D. TAMBO": "D. MULTICATEGORÍA", "DISTRITO": "SAN MARTIN DE PORRES", "DIRECCIÓN": "AV EDUARDO D HABICH MZ A3 LT 2 URB INGENIERÍA, PRIMER PISO. SAN MARTÍN DE PORRES LIMA", "OBSERVACIONES": null, "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_393201_3004_2026-07-13_1551_cp.jpg", "F. EJECUCIÓM": "2026-07-13"}, {"ID STORE": 515546, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - CHILCA", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "STAR PIANO", "CANTIDAD ": 2, "D. TAMBO": "D. MULTICATEGORÍA", "DISTRITO": "CHILCA", "DIRECCIÓN": "Zona 01 Chilca Central Av. Mariano Ignacio Prado Mz. 40, Lt. 1 A", "OBSERVACIONES": null, "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_515546_3008_2026-07-11_2108_d2.jpg", "F. EJECUCIÓM": "2026-07-13"}, {"ID STORE": 710105, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - COMBATE DE ANGAMOS -SURCO", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "CIG BACK W. PIXEL 3.0 MD 12", "CANTIDAD ": 1, "D. TAMBO": "D. MULTICATEGORÍA", "DISTRITO": "SANTIAGO DE SURCO                  ", "DIRECCIÓN": "Jr. Combate de Angamos N° 531, Urb. Cercado, distrito de Santiago de Surco, provincia y departamento de Lima.", "OBSERVACIONES": null, "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_710105_3008_2026-07-12_0007_d2.jpg", "F. EJECUCIÓM": "2026-07-13"}, {"ID STORE": 710332, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - JPRADO-C49", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "CIG BACK W. PIXEL 3.0 ", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "LA MOLINA", "DIRECCIÓN": "Av. Javier Prado Este N° 4921 Tda-02 Mz L2 Lt 09, Urb. Camacho, distrito de La Molina, provincia y departamento de Lima", "OBSERVACIONES": null, "LINK FOTO": "https://ibb.co/FbmnczVN", "F. EJECUCIÓM": "2026-07-13"}, {"ID STORE": 710252, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - JRCUZCO-LAMOLINA", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "CIG BACK W. PIXEL 3.0 ", "CANTIDAD ": 1, "D. TAMBO": "D. MULTICATEGORÍA", "DISTRITO": "LA MOLINA", "DIRECCIÓN": "Jr. Cuzco Mz P Lt 01 Urb. Santa Patricia II Etapa, distrito de La Molina, provincia y departamento de Lima", "OBSERVACIONES": null, "LINK FOTO": "https://ibb.co/7xrq6fcF", "F. EJECUCIÓM": "2026-07-13"}, {"ID STORE": 710254, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - LA FLORESTA-CHACLACAYO", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "CIG BACK W. PIXEL 3.0 ", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "CHACLACAYO", "DIRECCIÓN": "Av. La Floresta - Mz. D, Lt. 1, Coop. de Viv. La Floresta Cop Coop. de Viv. La Floresta, distrito de Chaclacayo, provincia y departamento de Lima.", "OBSERVACIONES": null, "LINK FOTO": "https://ibb.co/0RVdCYLm", "F. EJECUCIÓM": "2026-07-13"}, {"ID STORE": 393087, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - M-BASTIDAS", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "CIG BACK W. PIXEL 3.0 ", "CANTIDAD ": 2, "D. TAMBO": "D. MULTICATEGORÍA", "DISTRITO": "VILLA EL SALVADOR", "DIRECCIÓN": "MZA. F LOTE. 13 P.J. VILLA EL SALVADOR ", "OBSERVACIONES": null, "LINK FOTO": "https://ibb.co/Cs16Q9LQ", "F. EJECUCIÓM": "2026-07-13"}, {"ID STORE": 392939, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - TDA WIESSE", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "STAR PIANO 4.0", "CANTIDAD ": 2, "D. TAMBO": "D. TAMBO", "DISTRITO": "SAN JUAN DE LURIGANCHO", "DIRECCIÓN": "MZA C1 LOTE 12 URB LOS PINOS (PRIMER PISO ) SJL", "OBSERVACIONES": null, "LINK FOTO": "https://ibb.co/gZg04Lp2", "F. EJECUCIÓM": "2026-07-13"}, {"ID STORE": 393225, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - TDA PARACAS", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "STAR PIANO", "CANTIDAD ": 2, "D. TAMBO": "D. MULTICATEGORÍA", "DISTRITO": "ATE VITARTE", "DIRECCIÓN": "AV LOS PARACAS 206 URB SALAMANCA ATE LIMA", "OBSERVACIONES": null, "LINK FOTO": "https://ibb.co/21H1CbbM", "F. EJECUCIÓM": "2026-07-14"}, {"ID STORE": 711428, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - JPRADO- C15 - LAVICTORIA", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "LUMUS", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "LA VICTORIA", "DIRECCIÓN": "Av. Javier Prado Este N° 1509 piso 1 ref. Loc. comercial 2 - LA VICTORIA", "OBSERVACIONES": null, "LINK FOTO": "https://ibb.co/5XJH1tGP", "F. EJECUCIÓM": "2026-07-14"}, {"ID STORE": 710776, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - JPRADO C61", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "STAR PIANO 2.0", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "LA MOLINA", "DIRECCIÓN": "AV. JAVIER PRADO ESTE N° 6195 DPT-1 MZ Q6 LT 04 URB. LA RIVIERA DE MONTERRICO I ETAPA LA MOLINA", "OBSERVACIONES": null, "LINK FOTO": "https://ibb.co/qMQWtB1T", "F. EJECUCIÓM": "2026-07-14"}, {"ID STORE": 393159, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - SANMARTIN-C6", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "STAR PIANO 4.0", "CANTIDAD ": 2, "D. TAMBO": "D. MULTICATEGORÍA", "DISTRITO": "ATE VITARTE", "DIRECCIÓN": "CALLE PARQUE FUNDÓ LA ESTRELLA MZ B LT 3 ATE LIMA", "OBSERVACIONES": null, "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_393159_3008_2026-07-14_2143_cf.jpg", "F. EJECUCIÓM": "2026-07-14"}, {"ID STORE": 393160, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - SANTACLARA", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "STAR PIANO 4.0", "CANTIDAD ": 2, "D. TAMBO": "D. MULTICATEGORÍA", "DISTRITO": "ATE VITARTE", "DIRECCIÓN": "CALLE PARQUE CÍVICO 255 C. O. SANTA CLARA LIMA - ATE  LIMA", "OBSERVACIONES": null, "LINK FOTO": "https://ibb.co/rq90835", "F. EJECUCIÓM": "2026-07-14"}, {"ID STORE": 711185, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - MONTEGRANDE-C1-SURCO", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "LUMUS", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "SANTIAGO DE SURCO                  ", "DIRECCIÓN": "Cal.Montegrande Nro. 186 Urb. Chacarilla Del Estanque Lima - Lima - Santiago De Surco", "OBSERVACIONES": null, "LINK FOTO": "https://ibb.co/YTkMh5ft", "F. EJECUCIÓM": "2026-07-14"}, {"ID STORE": 475619, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - GRIFO-HUAYCAN", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "STAR PIANO 2.0", "CANTIDAD ": 1, "D. TAMBO": "D. MULTICATEGORÍA", "DISTRITO": "ATE VITARTE", "DIRECCIÓN": "AV. CARRETERA CENTRAL N° 16 CP PARIACHI", "OBSERVACIONES": null, "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_475619_3008_2026-07-14_2208_cf.jpg", "F. EJECUCIÓM": "2026-07-14"}, {"ID STORE": 710751, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - VALLERIESTRA-C5", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "CIG BACK W. PIXEL 3.0 ", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "SAN ISIDRO", "DIRECCIÓN": "Calle Valle Riestra ,General Francisco 505, San Isidro", "OBSERVACIONES": null, "LINK FOTO": "https://ibb.co/SDQR0RCW", "F. EJECUCIÓM": "2026-07-14"}, {"ID STORE": 710753, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - SEVILLA-C1-MIRAFLORES", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "CIG BACK W. PIXEL 3.0 ", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "MIRAFLORES", "DIRECCIÓN": "Calle Sevilla Nº 105, distrito de Miraflores, provincia y departamento de Lima.", "OBSERVACIONES": null, "LINK FOTO": "https://ibb.co/39gqQpdW", "F. EJECUCIÓM": "2026-07-14"}, {"ID STORE": 710257, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - JUANDEARONA-C2", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "CIG BACK W. PIXEL 3.0 MD 12", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "SAN ISIDRO", "DIRECCIÓN": "AVENIDA JUAN DE ARONA N° 290 - SAN ISIDRO", "OBSERVACIONES": null, "LINK FOTO": "https://ibb.co/Sw2LfrnC", "F. EJECUCIÓM": "2026-07-14"}, {"ID STORE": 393148, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - AYLLON-C4", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "STAR PIANO", "CANTIDAD ": 2, "D. TAMBO": "D. MULTICATEGORÍA", "DISTRITO": "CHACLACAYO", "DIRECCIÓN": "AV NICOLÁS AYLLON 421 - 423 CHACLACAYO LIMA", "OBSERVACIONES": null, "LINK FOTO": "https://ibb.co/7NNgf9jk", "F. EJECUCIÓM": "2026-07-14"}, {"ID STORE": 711528, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - TACNA-C5-SANMIGUEL", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "STAR PIANO", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "SAN MIGUEL", "DIRECCIÓN": "AV. Tacna 500 san miguel", "OBSERVACIONES": null, "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_711528_3004_2026-07-14_1734_cp.jpg", "F. EJECUCIÓM": "2026-07-14"}, {"ID STORE": 710774, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - MARQUEZ-C8-JESUSMARIA", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "STAR PIANO 2.0", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "JESUS MARIA", "DIRECCIÓN": "AV.JOSE ARNALDO MARQUEZ, - 892 JESUS MARIA", "OBSERVACIONES": null, "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_710774_3004_2026-07-14_2129_cp.jpg", "F. EJECUCIÓM": "2026-07-14"}, {"ID STORE": 393299, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - CANTACALLAO", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "STAR PIANO 4.0", "CANTIDAD ": 2, "D. TAMBO": "D. TAMBO", "DISTRITO": "SAN MARTIN DE PORRES", "DIRECCIÓN": "AV. CANTA CALLAO MZ G LT 4 ASOCIACION LAS BEGONIAS _ SAN MARTIN DE PORRES", "OBSERVACIONES": null, "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_393299_3004_2026-07-13_1820_cp.jpg", "F. EJECUCIÓM": "2026-07-13"}, {"ID STORE": 392866, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - CHINCHAYSUYO", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "STAR ONE CON REEL", "CANTIDAD ": 1, "D. TAMBO": null, "DISTRITO": "INDEPENDENCIA", "DIRECCIÓN": "AV. CHINCHAYSUYO MZA.N LTE.13(INDEPENDENCIA)", "OBSERVACIONES": null, "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_392866_3004_2026-07-13_1651_cp.jpg", "F. EJECUCIÓM": "2026-07-13"}, {"ID STORE": 392977, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - TDA COMAS", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "STAR PIANO 4.0", "CANTIDAD ": 2, "D. TAMBO": "D. MULTICATEGORÍA", "DISTRITO": "COMAS", "DIRECCIÓN": "AV TUPAC AMARU NRO 4961 URB HUAQUILLAY COMAS", "OBSERVACIONES": null, "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_392977_3004_2026-07-13_1734_cp.jpg", "F. EJECUCIÓM": "2026-07-13"}, {"ID STORE": 709525, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - GRAU-C4-BELLAVISTA", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "STAR PIANO", "CANTIDAD ": 1, "D. TAMBO": "D. MULTICATEGORÍA", "DISTRITO": "CALLAO", "DIRECCIÓN": "Jirón Miguel Grau 415 Y Calle Los Heros 500 - BELLAVISTA CALLAO", "OBSERVACIONES": null, "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_709525_3004_2026-07-14_1610_cp.jpg", "F. EJECUCIÓM": "2026-07-14"}, {"ID STORE": 392789, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - UDELCALLAO", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "STAR PIANO 4.0", "CANTIDAD ": 2, "D. TAMBO": "D. MULTICATEGORÍA", "DISTRITO": "CALLAO", "DIRECCIÓN": "AV. JUAN PABLO 2DO MZ B LT 4 BELLAVISTA CALLAO", "OBSERVACIONES": null, "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_392789_3004_2026-07-14_1634_cp.jpg", "F. EJECUCIÓM": "2026-07-14"}, {"ID STORE": 392776, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - COLONIAL-C31", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "STAR PIANO", "CANTIDAD ": 2, "D. TAMBO": "D. MULTICATEGORÍA", "DISTRITO": "CALLAO", "DIRECCIÓN": "AV. ÓSCAR BENAVIDES 3178 TDA 1 BELLASVISTA CALLAO", "OBSERVACIONES": null, "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_392776_3004_2026-07-14_1546_cp.jpg", "F. EJECUCIÓM": "2026-07-14"}, {"ID STORE": 706181, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - AMANCAES-C1", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "STAR PIANO 4.0", "CANTIDAD ": 1, "D. TAMBO": "D. MULTICATEGORÍA", "DISTRITO": "CALLAO", "DIRECCIÓN": "CALLE LOS AMANCAES 104 - BELLAVISTA - CALLAO", "OBSERVACIONES": null, "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_706181_3004_2026-07-14_1700_cp.jpg", "F. EJECUCIÓM": "2026-07-14"}, {"ID STORE": 392919, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - VENEZUELA-C11", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "STAR PIANO 4.0", "CANTIDAD ": 2, "D. TAMBO": "D. MULTICATEGORÍA", "DISTRITO": "BREÑA", "DIRECCIÓN": "AV REPUBLICA DE VENEZUELA NRO 1199 BREÑA", "OBSERVACIONES": null, "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_392919_3004_2026-07-14_2105_cp.jpg", "F. EJECUCIÓM": "2026-07-14"}, {"ID STORE": 706538, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - PERU-C17-SMP", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "STAR PIANO 4.0", "CANTIDAD ": 1, "D. TAMBO": "D. MULTICATEGORÍA", "DISTRITO": "SAN MARTIN DE PORRES", "DIRECCIÓN": "Av. Perú Nro. S/N Mz. 32 Cdra. 17 Lado Der. Lugar AA.HH. Urb. Peru - Zona 1° - Barrio La Esperanza Sector 49 Sub Lote 9-A, San Martín de Porres.", "OBSERVACIONES": null, "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_706538_3004_2026-07-13_2003_cp.jpg", "F. EJECUCIÓM": "2026-07-13"}, {"ID STORE": 711429, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - PERU-C47-CALLAO", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "STAR MASSI 2.0", "CANTIDAD ": 1, "D. TAMBO": "D. MULTICATEGORÍA", "DISTRITO": "CALLAO", "DIRECCIÓN": "Av. Perú Mz. E 14A- Lt.05 ( CUADRA 47) AAHH BOCANEGRA - SECTOR 4- CALLAO - CALLAO", "OBSERVACIONES": null, "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_711429_3004_2026-07-13_1850_cp.jpg", "F. EJECUCIÓM": "2026-07-13"}, {"ID STORE": 393302, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - CHOCANO", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "STAR PIANO 4.0", "CANTIDAD ": 2, "D. TAMBO": "D. MULTICATEGORÍA", "DISTRITO": "CALLAO", "DIRECCIÓN": "AV. JOSE SANTOS CHOCANO 190 _ CARMEN DE LA LEGUA", "OBSERVACIONES": null, "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_393302_3004_2026-07-14_1447_cp.jpg", "F. EJECUCIÓM": "2026-07-14"}, {"ID STORE": 393202, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - TDA SAN GERMAN", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "STAR PIANO 4.0", "CANTIDAD ": 2, "D. TAMBO": "D. MULTICATEGORÍA", "DISTRITO": "SAN MARTIN DE PORRES", "DIRECCIÓN": "MZ H LT 19 URB EL ROSARIO, SAN MARTÍN DE PORRES LIMA", "OBSERVACIONES": null, "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_393202_3004_2026-07-13_1919_cp.jpg", "F. EJECUCIÓM": "2026-07-13"}, {"ID STORE": 710755, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - EL PARQUE C3-SURCO", "STATUS": "NO EFECTIVO", "PLACA": "NO", "DISPENSER": "NO", "CIGARRERA": "STAR MASSI", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "SURCO", "DIRECCIÓN": "Jr.El Parque 396 - 398 - Mz. B, Lt. 20 - Urbanizacion - San Roque - Santiago de Surco.", "OBSERVACIONES": "CERRADO POR OBRAS", "LINK FOTO": "https://ibb.co/1JppCwv7", "F. EJECUCIÓM": "2026-07-07"}, {"ID STORE": 392930, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - PIRAMIDE", "STATUS": "NO EFECTIVO", "PLACA": "SI", "DISPENSER": "NO", "CIGARRERA": "STAR PIANO 2.0", "CANTIDAD ": 1, "D. TAMBO": "D. MULTICATEGORÍA", "DISTRITO": "SAN JUAN DE LURIGANCHO", "DIRECCIÓN": "AV PIRAMIDE DEL SOL NRO 405 SJL", "OBSERVACIONES": "ACTIVO EN MAL ESTADO, SE REVISITARA PARA MANTENIMIENTO. EL DISPENSER SE INSTALARA CON EL EQUIPO MERCH, YA QUE, EL QUE SE ENCUENTRA EN TIENDA ESTA DEMASIADO ADERIDO AL MESÓN.", "LINK FOTO": "https://ibb.co/DPCg5p6y", "F. EJECUCIÓM": "2026-07-13"}, {"ID STORE": 712827, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - BENAVIDES-C13-MIRAFLORES", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "STAR MASSI 2.0", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "MIRAFLORES", "DIRECCIÓN": "Av. Alfredo Benavides 1307 MIRAFLORES", "OBSERVACIONES": null, "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_712827_3004_2026-07-15_1713_cp.jpg", "F. EJECUCIÓM": "2026-07-14"}, {"ID STORE": 710335, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - ARENALES C2", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "CIG BACK W. PIXEL 3.0 MD 12", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "SAN ISIDRO", "DIRECCIÓN": "Av. Arenales 200 - 204 - 206 San Isidro", "OBSERVACIONES": null, "LINK FOTO": "https://ibb.co/FbPxxZ0g", "F. EJECUCIÓM": "2026-07-14"}, {"ID STORE": 710267, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - LARCO-C8", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "STAR PIANO 2.0", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "MIRAFLORES", "DIRECCIÓN": "Av. Larco N° 815, distrito de Miraflores", "OBSERVACIONES": null, "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_710267_3004_2026-07-15_1742_cp.jpg", "F. EJECUCIÓM": "2026-07-14"}, {"ID STORE": 710763, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - PETIT-C45", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "STAR PIANO 2.0", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "MIRAFLORES", "DIRECCIÓN": "Av. Petit Thouars N° 4582, Miraflores.", "OBSERVACIONES": null, "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_710763_3004_2026-07-15_1813_cp.jpg", "F. EJECUCIÓM": "2026-07-14"}, {"ID STORE": 710767, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - ARENALES-C10", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "CIG BACK W. PIXEL 3.0 MD 12", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "CERCADO DE LIMA", "DIRECCIÓN": "Avenida General Arenales N° 1085-1087-1093 esquina Jr. Alférez Mariano Carranza Urbanización Fundo Santa Beatriz - Cercado de Lima", "OBSERVACIONES": null, "LINK FOTO": "https://ibb.co/YFcw17Ly", "F. EJECUCIÓM": "2026-07-14"}, {"ID STORE": 711427, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - JGALVEZ C8 - LA VICTORIA", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "STAR MASSI", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "LA VICTORIA", "DIRECCIÓN": "Avenida José Gálvez No. 805, distrito de la Victoria", "OBSERVACIONES": null, "LINK FOTO": "https://ibb.co/jmypF3x", "F. EJECUCIÓM": "2026-07-14"}, {"ID STORE": 392937, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - TDA RIVAGUERO", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "STAR PIANO 4.0", "CANTIDAD ": 2, "D. TAMBO": "D. MULTICATEGORÍA", "DISTRITO": "EL AGUSTINO                        ", "DIRECCIÓN": "AV RIVAGUERO 674 ZONA SEXTA LOTE 35 INT 674 P.J PRO VIVIENDA SUB MANZANA L EL AGUSTINO", "OBSERVACIONES": null, "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_392937_3004_2026-07-15_1542_cp.jpg", "F. EJECUCIÓM": "2026-07-14"}, {"ID STORE": 710996, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - ANGAMOS-C1", "STATUS": "EFECTIVO", "PLACA": "SI", "DISPENSER": "SI", "CIGARRERA": "STAR PIANO 2.0", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "SAN BORJA", "DIRECCIÓN": "AVENIDA ANGAMOS ESTE H-49 MZ H LT 49 PAPA JUAN XXIII SAN BORJA", "OBSERVACIONES": null, "LINK FOTO": "https://storage.googleapis.com/photos_audit/velo_LIMA_710996_3004_2026-07-15_1635_cp.jpg", "F. EJECUCIÓM": "2026-07-14"}, {"ID STORE": 393192, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - PERU-C22", "STATUS": "NO EFECTIVO", "PLACA": "NO", "DISPENSER": "NO", "CIGARRERA": "STAR PIANO", "CANTIDAD ": 2, "D. TAMBO": "D. MULTICATEGORÍA", "DISTRITO": "SAN MARTIN DE PORRES", "DIRECCIÓN": "AV URB PERÚ MZ 26 LT 4A SAN MARTÍN DE PORRES LIMA.", "OBSERVACIONES": "LOCAL EN INVENTARIO", "LINK FOTO": null, "F. EJECUCIÓM": "2026-07-13"}, {"ID STORE": 393305, "CIUDAD": "LIMA", "NOMBRE TT": "TAMBO - FICUS", "STATUS": "NO EFECTIVO", "PLACA": "NO", "DISPENSER": "NO", "CIGARRERA": "STAR PIANO", "CANTIDAD ": 2, "D. TAMBO": "D. TAMBO", "DISTRITO": "VENTANILLA", "DIRECCIÓN": "MZ V6 LOT 28 CALLE 1-URB CIUDAD SATELITE _ VENTANILLA", "OBSERVACIONES": "LOCAL EN INVENTARIO", "LINK FOTO": null, "F. EJECUCIÓM": "2026-07-14"}, {"ID STORE": 691810, "CIUDAD": "TRUJILLO", "NOMBRE TT": "TAMBO - AMERICASUR-C44-TRUJILLO", "STATUS": "PENDIENTE", "PLACA": "PENDIENTE", "DISPENSER": "PENDIENTE", "CIGARRERA": "STAR PIANO 4.0", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "TRUJILLO", "DIRECCIÓN": "Av. América Sur No 4472 Mz. I Lote 29 - No 4478 Mz. I Lote 30, Urb. San Andrés, distrito y provincia de Trujillo, departamento de La Libertad", "OBSERVACIONES": null, "LINK FOTO": null, "F. EJECUCIÓM": null}, {"ID STORE": 709558, "CIUDAD": "ICA", "NOMBRE TT": "TAMBO - AYABACA-C4", "STATUS": "PENDIENTE", "PLACA": "PENDIENTE", "DISPENSER": "PENDIENTE", "CIGARRERA": "STAR PIANO", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "ICA", "DIRECCIÓN": "Calle Ayabaca, Mz. H-4, Lt. 12, urb. San Isidro, distrito, provincia y departamento de Ica", "OBSERVACIONES": null, "LINK FOTO": null, "F. EJECUCIÓM": null}, {"ID STORE": 637319, "CIUDAD": "CHINCHA", "NOMBRE TT": "TAMBO - BENAVIDES-C7-CHINCHA", "STATUS": "PENDIENTE", "PLACA": "PENDIENTE", "DISPENSER": "PENDIENTE", "CIGARRERA": "STAR PIANO 3.0", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "CHINCHA", "DIRECCIÓN": "AV. OSCAR BENAVIDES NUM 771 CHINCHA ALTA", "OBSERVACIONES": null, "LINK FOTO": null, "F. EJECUCIÓM": null}, {"ID STORE": 600738, "CIUDAD": "CHICLAYO", "NOMBRE TT": "TAMBO - CASTILLA-C6-LAMBAYEQUE", "STATUS": "PENDIENTE", "PLACA": "PENDIENTE", "DISPENSER": "PENDIENTE", "CIGARRERA": "CIG BACK W. PIXEL 3.0 MD 12", "CANTIDAD ": 2, "D. TAMBO": "D. TAMBO", "DISTRITO": "LAMBAYEQUE", "DIRECCIÓN": "Avenida Ramón Castilla N° 601 Mz. A Lt. 1, Cercado Lambayeque, Distrito, Provincia y Departamento de Lambayeque.", "OBSERVACIONES": null, "LINK FOTO": null, "F. EJECUCIÓM": null}, {"ID STORE": 633206, "CIUDAD": "PIURA", "NOMBRE TT": "TAMBO - COUNTRY-1 -PIURA", "STATUS": "PENDIENTE", "PLACA": "PENDIENTE", "DISPENSER": "PENDIENTE", "CIGARRERA": "STAR PIANO 3.0", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "PIURA", "DIRECCIÓN": "Ca. 3 Mz. C, Lote 9 Urb. Angamos I Etapa , distrito, provincia y departamento de Piura", "OBSERVACIONES": null, "LINK FOTO": null, "F. EJECUCIÓM": null}, {"ID STORE": 701775, "CIUDAD": "AREQUIPA", "NOMBRE TT": "TAMBO - EJERCITO-C2-AREQUIPA", "STATUS": "PENDIENTE", "PLACA": "PENDIENTE", "DISPENSER": "PENDIENTE", "CIGARRERA": "CIG AEREA PIXEL 3.0 MD12 TRANSFORMADA", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "AREQUIPA", "DIRECCIÓN": "Av Ejercito 206A - Pueblo Tradicional Mz. C Lote 29, Zona Tradicional, distrito de Yanahuara, provincia y departamento de Arequipa", "OBSERVACIONES": null, "LINK FOTO": null, "F. EJECUCIÓM": null}, {"ID STORE": 626858, "CIUDAD": "ICA", "NOMBRE TT": "TAMBO - EL SOL - ICA", "STATUS": "PENDIENTE", "PLACA": "PENDIENTE", "DISPENSER": "PENDIENTE", "CIGARRERA": "STAR PIANO 3.0", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "ICA", "DIRECCIÓN": "SOL DE ICA MZ E LT O1 URB SOL DE ICA", "OBSERVACIONES": null, "LINK FOTO": null, "F. EJECUCIÓM": null}, {"ID STORE": 600739, "CIUDAD": "CHICLAYO", "NOMBRE TT": "TAMBO - ELIASAGUIRRE-C3-CHICLAYO", "STATUS": "PENDIENTE", "PLACA": "PENDIENTE", "DISPENSER": "PENDIENTE", "CIGARRERA": "CIG BACK W. PIXEL 3.0 MD 12", "CANTIDAD ": 2, "D. TAMBO": "D. TAMBO", "DISTRITO": "CHICLAYO                           ", "DIRECCIÓN": "Calle ELIAS AGUIRRE 0394 ( 388- 396 ) MZ 134 LT 30 NUM 388 -396 distrito de Chiclayo -", "OBSERVACIONES": null, "LINK FOTO": null, "F. EJECUCIÓM": null}, {"ID STORE": 637504, "CIUDAD": "TRUJILLO", "NOMBRE TT": "TAMBO - GANOZA - C6 - TRUJILLO", "STATUS": "PENDIENTE", "PLACA": "PENDIENTE", "DISPENSER": "PENDIENTE", "CIGARRERA": "STAR PIANO 3.0", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "TRUJILLO", "DIRECCIÓN": "AV GUUILLERMO GANOZA VARGAS N°650", "OBSERVACIONES": null, "LINK FOTO": null, "F. EJECUCIÓM": null}, {"ID STORE": 616679, "CIUDAD": "HUACHO", "NOMBRE TT": "TAMBO - HUACHO", "STATUS": "PENDIENTE", "PLACA": "PENDIENTE", "DISPENSER": "PENDIENTE", "CIGARRERA": "CIG BACK W. PIXEL 3.0 ", "CANTIDAD ": 2, "D. TAMBO": "D. TAMBO", "DISTRITO": "HUACHO", "DIRECCIÓN": "AV. 28 DE JULIO NRO. 196", "OBSERVACIONES": null, "LINK FOTO": null, "F. EJECUCIÓM": null}, {"ID STORE": 706160, "CIUDAD": "HUARAL", "NOMBRE TT": "TAMBO - HUAQUILLA-HUARAL", "STATUS": "PENDIENTE", "PLACA": "PENDIENTE", "DISPENSER": "PENDIENTE", "CIGARRERA": "STAR PIANO 4.0", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "HUARAL", "DIRECCIÓN": "CALL 2 MZ E LT6 DE LA COOPERATIVA DE VIVIENDA LA HUAQUILLA DISTRITO Y PROVINCIA HUARAL DEPARTAMENTO DE LIMA", "OBSERVACIONES": null, "LINK FOTO": null, "F. EJECUCIÓM": null}, {"ID STORE": 616680, "CIUDAD": "HUARAL", "NOMBRE TT": "TAMBO - HUARAL", "STATUS": "PENDIENTE", "PLACA": "PENDIENTE", "DISPENSER": "PENDIENTE", "CIGARRERA": "CIG BACK W. PIXEL 3.0 ", "CANTIDAD ": 2, "D. TAMBO": "D. TAMBO", "DISTRITO": "HUARAL", "DIRECCIÓN": "AV. LUIS COLAN 276", "OBSERVACIONES": null, "LINK FOTO": null, "F. EJECUCIÓM": null}, {"ID STORE": 616777, "CIUDAD": "TRUJILLO", "NOMBRE TT": "TAMBO - HUSARES DE JUNIN-C12-TRUJILLO", "STATUS": "PENDIENTE", "PLACA": "PENDIENTE", "DISPENSER": "PENDIENTE", "CIGARRERA": "CIG BACK W. PIXEL 3.0 MD 12", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "TRUJILLO", "DIRECCIÓN": "Av. Húsares de Junín N° 1210, Urbanización III Etapa, distrito y provincia de Trujillo, departamento de La Libertad", "OBSERVACIONES": null, "LINK FOTO": null, "F. EJECUCIÓM": null}, {"ID STORE": 626920, "CIUDAD": "TRUJILLO", "NOMBRE TT": "TAMBO - JESUSDENAZARETH - C13", "STATUS": "PENDIENTE", "PLACA": "PENDIENTE", "DISPENSER": "PENDIENTE", "CIGARRERA": "STAR PIANO 3.0", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "TRUJILLO", "DIRECCIÓN": "AV. DE NAZARETH JESUS MZ U LT 01 SECTOR NATASHA ALTA, URB CORTIJO", "OBSERVACIONES": null, "LINK FOTO": null, "F. EJECUCIÓM": null}, {"ID STORE": 641186, "CIUDAD": "CHICLAYO", "NOMBRE TT": "TAMBO - JUANXXIII-LAMBAYEQUE", "STATUS": "PENDIENTE", "PLACA": "PENDIENTE", "DISPENSER": "PENDIENTE", "CIGARRERA": "STAR PIANO 3.0", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "CHICLAYO                           ", "DIRECCIÓN": "Calle 2 de mayo N° 954, Mz. 76, Lt. 74, Cercado Lambayeque, distrito, provincia y departamento de Lambayeque", "OBSERVACIONES": null, "LINK FOTO": null, "F. EJECUCIÓM": null}, {"ID STORE": 666314, "CIUDAD": "ICA", "NOMBRE TT": "TAMBO - La Angostura", "STATUS": "PENDIENTE", "PLACA": "PENDIENTE", "DISPENSER": "PENDIENTE", "CIGARRERA": "CIG BACK W. PIXEL 3.0 MD 12", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "ICA", "DIRECCIÓN": "URBANIZACIÓN LA ANGOSTURA MZ F LT 8 ZONA B DISTRITO DE ICA", "OBSERVACIONES": null, "LINK FOTO": null, "F. EJECUCIÓM": null}, {"ID STORE": 601624, "CIUDAD": "CHICLAYO", "NOMBRE TT": "TAMBO - LAFLORIDA-C4-CHICLAYO", "STATUS": "PENDIENTE", "PLACA": "PENDIENTE", "DISPENSER": "PENDIENTE", "CIGARRERA": "STAR MASSI", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "CHICLAYO                           ", "DIRECCIÓN": "Calle La Florida N° 448, Urbanización Santa Victoria, distrito y provincia de Chiclayo,", "OBSERVACIONES": null, "LINK FOTO": null, "F. EJECUCIÓM": null}, {"ID STORE": 683274, "CIUDAD": "AREQUIPA", "NOMBRE TT": "TAMBO - LAMBRAMANI", "STATUS": "PENDIENTE", "PLACA": "PENDIENTE", "DISPENSER": "PENDIENTE", "CIGARRERA": "CIG BACK W. PIXEL 3.0 MD 12", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "AREQUIPA", "DIRECCIÓN": "AV. LAMBRAMANI MZ B LT 01 LAMBRAMANI CERCADO - AREQUIPA", "OBSERVACIONES": null, "LINK FOTO": null, "F. EJECUCIÓM": null}, {"ID STORE": 640844, "CIUDAD": "TRUJILLO", "NOMBRE TT": "TAMBO - LARCO-C11-TRUJILLO", "STATUS": "PENDIENTE", "PLACA": "PENDIENTE", "DISPENSER": "PENDIENTE", "CIGARRERA": "STAR PIANO 3.0", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "TRUJILLO", "DIRECCIÓN": "Av. Larco Herrera, Victor, urb. La Merced, III Etapa, Mz. N, Lt. 02, distrito y provincia de Trujillo, departamento de La Libertad", "OBSERVACIONES": null, "LINK FOTO": null, "F. EJECUCIÓM": null}, {"ID STORE": 709644, "CIUDAD": "TRUJILLO", "NOMBRE TT": "TAMBO - LARCO-C17-TRUJILLO", "STATUS": "PENDIENTE", "PLACA": "PENDIENTE", "DISPENSER": "PENDIENTE", "CIGARRERA": "STAR PIANO", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "TRUJILLO", "DIRECCIÓN": "Av. Víctor Larco Herrera Nº 1703-1707, urbanización Santa Isabel, distrito de Víctor Larco Herrera, provincia de Trujillo, departamento La Libertad", "OBSERVACIONES": null, "LINK FOTO": null, "F. EJECUCIÓM": null}, {"ID STORE": 617256, "CIUDAD": "PIURA", "NOMBRE TT": "TAMBO - LAS PALMERAS", "STATUS": "PENDIENTE", "PLACA": "PENDIENTE", "DISPENSER": "PENDIENTE", "CIGARRERA": "CIG AEREA PIXEL 3.0 MD12 TRANSFORMADA", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "PIURA", "DIRECCIÓN": "Av. Las Palmeras Mz. B, Lt. 17C, urb. San Eduardo distrito, provincia y departamento de Piura", "OBSERVACIONES": null, "LINK FOTO": null, "F. EJECUCIÓM": null}, {"ID STORE": 499108, "CIUDAD": "CHICLAYO", "NOMBRE TT": "TAMBO - MALL AVENTURA", "STATUS": "PENDIENTE", "PLACA": "PENDIENTE", "DISPENSER": "PENDIENTE", "CIGARRERA": "STAR ONE CON PLACA", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "CHICLAYO                           ", "DIRECCIÓN": "Panamericana Norte cruce con Avenida Escrivá de Balaguer.", "OBSERVACIONES": null, "LINK FOTO": null, "F. EJECUCIÓM": null}, {"ID STORE": 651291, "CIUDAD": "ICA", "NOMBRE TT": "TAMBO - MATIAS-C3-ICA", "STATUS": "PENDIENTE", "PLACA": "PENDIENTE", "DISPENSER": "PENDIENTE", "CIGARRERA": "CIG BACK W. PIXEL 3.0 MD 12", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "ICA", "DIRECCIÓN": "AV. MATIAS MANZANILLA 386 Y CALLE FERNANDO LEON 122 URB. SAN MIGUEL POR CONFIRMAR", "OBSERVACIONES": null, "LINK FOTO": null, "F. EJECUCIÓM": null}, {"ID STORE": 713780, "CIUDAD": "AREQUIPA", "NOMBRE TT": "TAMBO - MERCADERES-C1-AREQUIPA", "STATUS": "PENDIENTE", "PLACA": "PENDIENTE", "DISPENSER": "PENDIENTE", "CIGARRERA": "STAR MASSI 2.0", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "AREQUIPA", "DIRECCIÓN": "CALLE MERCADERES # 107, CERCADO / DISTRITO AREQUIPA / DEPARTAMENTO AREQUIPA", "OBSERVACIONES": null, "LINK FOTO": null, "F. EJECUCIÓM": null}, {"ID STORE": 680104, "CIUDAD": "CHIMBOTE", "NOMBRE TT": "TAMBO - NUEVO-CHIMBOTE", "STATUS": "PENDIENTE", "PLACA": "PENDIENTE", "DISPENSER": "PENDIENTE", "CIGARRERA": "CIG BACK W. PIXEL 3.0 MD 12", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "CHIMBOTE", "DIRECCIÓN": "Av. Country Mz. F, Lote 58, Urb. Buenos Aires Zona 5A, distrito Nuevo Chimbote, provincia de Santa, departamento de Ancash", "OBSERVACIONES": null, "LINK FOTO": null, "F. EJECUCIÓM": null}, {"ID STORE": 710097, "CIUDAD": "ICA", "NOMBRE TT": "TAMBO - PARACAS - ICA", "STATUS": "PENDIENTE", "PLACA": "PENDIENTE", "DISPENSER": "PENDIENTE", "CIGARRERA": "CIG BACK W. PIXEL 3.0 MD 12", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "PARACAS", "DIRECCIÓN": "Avenida Las Américas, Mz. A, Lt. 06, AA.HH. Alan García Pérez, distrito de Paracas, provincia de Pisco y departamento de Ica", "OBSERVACIONES": null, "LINK FOTO": null, "F. EJECUCIÓM": null}, {"ID STORE": 688277, "CIUDAD": "CHICLAYO", "NOMBRE TT": "TAMBO - PIMENTEL", "STATUS": "PENDIENTE", "PLACA": "PENDIENTE", "DISPENSER": "PENDIENTE", "CIGARRERA": "CIG BACK W. PIXEL 3.0 ", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "PIMENTEL", "DIRECCIÓN": "Carretera Pimentel-Chiclayo, Mz. 0654, Lt. 01 Dpto., Lote D Sintipo Sin Nombre 033, distrito y provincia de Chiclayo, departamento de Lambayeque,", "OBSERVACIONES": null, "LINK FOTO": null, "F. EJECUCIÓM": null}, {"ID STORE": 647078, "CIUDAD": "TRUJILLO", "NOMBRE TT": "TAMBO - PIZARRO - C8 - TRUJILLO", "STATUS": "PENDIENTE", "PLACA": "PENDIENTE", "DISPENSER": "PENDIENTE", "CIGARRERA": "CIG AEREA PIXEL 3.0 TRANSFORMADA", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "TRUJILLO", "DIRECCIÓN": "Jr. Francisco Pizarro N° 898, distrito y provincia de Trujillo, departamento de La Libertad", "OBSERVACIONES": null, "LINK FOTO": null, "F. EJECUCIÓM": null}, {"ID STORE": 594105, "CIUDAD": "TRUJILLO", "NOMBRE TT": "TAMBO - PIZARRO-C3-TRUJILLO", "STATUS": "PENDIENTE", "PLACA": "PENDIENTE", "DISPENSER": "PENDIENTE", "CIGARRERA": "CIG BACK W. PIXEL 3.0 MD 12", "CANTIDAD ": 2, "D. TAMBO": "D. TAMBO", "DISTRITO": "TRUJILLO", "DIRECCIÓN": "Jr. De Almagro Diego N° 500, 516, 518, Urb. Cercado, distrito y provincia de Trujillo, departamento de La Libertad", "OBSERVACIONES": null, "LINK FOTO": null, "F. EJECUCIÓM": null}, {"ID STORE": 687664, "CIUDAD": "CHINCHA", "NOMBRE TT": "TAMBO - PLAZADEARMAS-CHINCHA", "STATUS": "PENDIENTE", "PLACA": "PENDIENTE", "DISPENSER": "PENDIENTE", "CIGARRERA": "CIG BACK W. PIXEL 3.0 MD 12", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "CHINCHA ALTA", "DIRECCIÓN": "CALLE PLAZA DE ARMAS 572 - 564 CHINCHA ALTA - CHINCHA - ICA", "OBSERVACIONES": null, "LINK FOTO": null, "F. EJECUCIÓM": null}, {"ID STORE": 687730, "CIUDAD": "HUACHO", "NOMBRE TT": "TAMBO - PLAZADEARMAS-HUACHO", "STATUS": "PENDIENTE", "PLACA": "PENDIENTE", "DISPENSER": "PENDIENTE", "CIGARRERA": "CIG BACK W. PIXEL 3.0 MD 12", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "HUACHO", "DIRECCIÓN": "JR SAN ROMAN 244 PLAZA DE ARMAS - HUACHO", "OBSERVACIONES": null, "LINK FOTO": null, "F. EJECUCIÓM": null}, {"ID STORE": 637320, "CIUDAD": "ICA", "NOMBRE TT": "TAMBO - PROGRESO-C1-PISCO", "STATUS": "PENDIENTE", "PLACA": "PENDIENTE", "DISPENSER": "PENDIENTE", "CIGARRERA": "STAR PIANO 3.0", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "PISCO", "DIRECCIÓN": "CALLE PROGRESO N°ALTERNO 198 - MZ 19 LT 8 / SECTOR CERCADO DE PISCO - PISCO", "OBSERVACIONES": null, "LINK FOTO": null, "F. EJECUCIÓM": null}, {"ID STORE": 707931, "CIUDAD": "ICA", "NOMBRE TT": "TAMBO - PUENTE BLANCO -ICA", "STATUS": "PENDIENTE", "PLACA": "PENDIENTE", "DISPENSER": "PENDIENTE", "CIGARRERA": "STAR PIANO 4.0", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "ICA", "DIRECCIÓN": "Mz. Puente Blanco VI Etapa Mz. A Lote 4, urbanización Puente Blanco, distrito, provincia y departamento de Ica", "OBSERVACIONES": null, "LINK FOTO": null, "F. EJECUCIÓM": null}, {"ID STORE": 682126, "CIUDAD": "TRUJILLO", "NOMBRE TT": "TAMBO - RIVERA-C5-TRUJILLO", "STATUS": "PENDIENTE", "PLACA": "PENDIENTE", "DISPENSER": "PENDIENTE", "CIGARRERA": "CIG AEREA PIXEL 3.0 TRANSFORMADA", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "TRUJILLO", "DIRECCIÓN": "Av. La Rivera N° 530, Mz. 22 Lote 1, distrito de Huanchaco, provincia de Trujillo, departamento de La Libertad", "OBSERVACIONES": null, "LINK FOTO": null, "F. EJECUCIÓM": null}, {"ID STORE": 705217, "CIUDAD": "AREQUIPA", "NOMBRE TT": "TAMBO - SIGLOXX-C1-AREQUIPA", "STATUS": "PENDIENTE", "PLACA": "PENDIENTE", "DISPENSER": "PENDIENTE", "CIGARRERA": "STAR PIANO 4.0", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "AREQUIPA", "DIRECCIÓN": "Av. Siglo XX N° 152- Cercado, Esquina con Corbacho Nº 153, provincia y departamento de Arequipa", "OBSERVACIONES": null, "LINK FOTO": null, "F. EJECUCIÓM": null}, {"ID STORE": 691540, "CIUDAD": "AREQUIPA", "NOMBRE TT": "TAMBO - TACNAYARICA-C1-AREQUIPA", "STATUS": "PENDIENTE", "PLACA": "PENDIENTE", "DISPENSER": "PENDIENTE", "CIGARRERA": "CIG AEREA PIXEL 3.0 MD12 TRANSFORMADA", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "AREQUIPA", "DIRECCIÓN": "Av. Tacna y Arica 125, distrito de Cercado de Arequipa, provincia y departamento de Arequipa", "OBSERVACIONES": null, "LINK FOTO": null, "F. EJECUCIÓM": null}, {"ID STORE": 571361, "CIUDAD": "PIURA", "NOMBRE TT": "TAMBO - TALLANES-PIURA", "STATUS": "PENDIENTE", "PLACA": "PENDIENTE", "DISPENSER": "PENDIENTE", "CIGARRERA": "CIG BACK W. PIXEL 3.0 MD 12", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "PIURA", "DIRECCIÓN": "Ex Fundo la Providencia TT-Call. Don Manuel Norte A 05 PIURA", "OBSERVACIONES": null, "LINK FOTO": null, "F. EJECUCIÓM": null}, {"ID STORE": 691812, "CIUDAD": "TRUJILLO", "NOMBRE TT": "TAMBO - VALLEJO-C9", "STATUS": "PENDIENTE", "PLACA": "PENDIENTE", "DISPENSER": "PENDIENTE", "CIGARRERA": "CIG AEREA PIXEL 3.0 MD12 TRANSFORMADA", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "TRUJILLO", "DIRECCIÓN": "Av. Cesar Vallejo Oeste N° 903-905, calle A, Mz. A, Lote 7, urb. Ingeniería I, distrito y provincia de Trujillo y departamento de La Libertad", "OBSERVACIONES": null, "LINK FOTO": null, "F. EJECUCIÓM": null}, {"ID STORE": 687771, "CIUDAD": "AREQUIPA", "NOMBRE TT": "TAMBO - VELARDE-C1-AREQUIPA", "STATUS": "PENDIENTE", "PLACA": "PENDIENTE", "DISPENSER": "PENDIENTE", "CIGARRERA": "CIG AEREA PIXEL 3.0 TRANSFORMADA", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "AREQUIPA", "DIRECCIÓN": "Calle Samuel Velarde Nº 116-A, Mz. C, Lt. 53 SUBLOTE A - Arequipa - AREQUIPA", "OBSERVACIONES": null, "LINK FOTO": null, "F. EJECUCIÓM": null}, {"ID STORE": 617257, "CIUDAD": "TRUJILLO", "NOMBRE TT": "TAMBO-BOLOGNESI-C5-TRUJILLO", "STATUS": "PENDIENTE", "PLACA": "PENDIENTE", "DISPENSER": "PENDIENTE", "CIGARRERA": "CIG AEREA PIXEL 3.0 TRANSFORMADA", "CANTIDAD ": 1, "D. TAMBO": "D. TAMBO", "DISTRITO": "TRUJILLO", "DIRECCIÓN": "calle Francisco Bolognesi N° 588, urb. Cercado, distrito y provincia de Trujillo, departamento de La Libertad", "OBSERVACIONES": null, "LINK FOTO": null, "F. EJECUCIÓM": null}];
+
+document.getElementById('fecha-actualizacion').textContent = new Date().toLocaleDateString('es-PE', {year:'numeric', month:'long', day:'numeric'});
+
+function norm(v){ return (v===null || v===undefined) ? '' : String(v); }
+
+let globalCiudad = '';
+
+function getScopedData(){
+  if(!globalCiudad) return DATA;
+  return DATA.filter(d => norm(d.CIUDAD) === globalCiudad);
+}
+
+function barsHTML(rows, maxVal){
+  return rows.map(r => `
+    <div class="bar-row">
+      <div class="name">${r.name}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${(r.value/maxVal*100).toFixed(1)}%; ${r.color?('background:'+r.color+';'):''}"></div></div>
+      <div class="bar-num">${r.value}</div>
+    </div>
+  `).join('');
+}
+
+function drawDonut(svgId, legendId, segments){
+  const svg = document.getElementById(svgId);
+  const r = 60, cx=75, cy=75, circumf = 2*Math.PI*r;
+  let offset = 0;
+  const sumVal = segments.reduce((a,s)=>a+s.value,0) || 1;
+  let html = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#0d2c5c" stroke-width="20"/>`;
+  segments.forEach(s => {
+    const frac = s.value/sumVal;
+    const len = frac*circumf;
+    html += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${s.color}" stroke-width="20"
+      stroke-dasharray="${len} ${circumf-len}" stroke-dashoffset="${-offset}"/>`;
+    offset += len;
+  });
+  svg.innerHTML = html;
+  document.getElementById(legendId).innerHTML = segments.map(s =>
+    `<div><span class="dot" style="background:${s.color}"></span>${s.name}: <b>${s.value}</b> (${(s.value/sumVal*100).toFixed(1)}%)</div>`
+  ).join('');
+}
+
+function renderKPIsAndCharts(){
+  const scoped = getScopedData();
+  const total = scoped.length;
+  const efectivo = scoped.filter(d => d.STATUS === 'EFECTIVO').length;
+  const noEfectivo = scoped.filter(d => d.STATUS === 'NO EFECTIVO').length;
+  const pendiente = scoped.filter(d => d.STATUS === 'PENDIENTE').length;
+  const placaSi = scoped.filter(d => d.PLACA === 'SI').length;
+  const placaNo = scoped.filter(d => d.PLACA === 'NO').length;
+  const placaPend = scoped.filter(d => d.PLACA === 'PENDIENTE').length;
+  const dispSi = scoped.filter(d => d.DISPENSER === 'SI').length;
+  const dispNo = scoped.filter(d => d.DISPENSER === 'NO').length;
+  const dispPend = scoped.filter(d => d.DISPENSER === 'PENDIENTE').length;
+
+  const kpis = [
+    {label:'Total tiendas', value: total, sub: globalCiudad ? globalCiudad : 'Base completa', cls:''},
+    {label:'Visitas efectivas', value: efectivo, sub: total? `${(efectivo/total*100).toFixed(1)}% del total`:'—', cls:'good'},
+    {label:'No efectivas', value: noEfectivo, sub: total? `${(noEfectivo/total*100).toFixed(1)}% del total`:'—', cls:'bad'},
+    {label:'Pendientes', value: pendiente, sub: total? `${(pendiente/total*100).toFixed(1)}% del total`:'—', cls:'gray'},
+  ];
+  document.getElementById('kpis').innerHTML = kpis.map(k => `
+    <div class="kpi ${k.cls}">
+      <div class="label">${k.label}</div>
+      <div class="value">${k.value}</div>
+      <div class="sub">${k.sub}</div>
+    </div>
+  `).join('');
+
+  drawDonut('donutStatus','legendStatus', [
+    {name:'Efectivo', value: efectivo, color:'#2fc76e'},
+    {name:'No efectivo', value: noEfectivo, color:'#ef4b4b'},
+    {name:'Pendiente', value: pendiente, color:'#7d90ac'},
+  ]);
+
+  const pdRows = [
+    {name:'Placa: Sí', value: placaSi, color:'linear-gradient(90deg,#2fc76e,#7ee7a8)'},
+    {name:'Placa: No', value: placaNo, color:'linear-gradient(90deg,#ef4b4b,#ff8080)'},
+    {name:'Placa: Pendiente', value: placaPend, color:'linear-gradient(90deg,#7d90ac,#a9bcdd)'},
+    {name:'Dispenser: Sí', value: dispSi, color:'linear-gradient(90deg,#2fc76e,#7ee7a8)'},
+    {name:'Dispenser: No', value: dispNo, color:'linear-gradient(90deg,#ef4b4b,#ff8080)'},
+    {name:'Dispenser: Pendiente', value: dispPend, color:'linear-gradient(90deg,#7d90ac,#a9bcdd)'},
+  ];
+  document.getElementById('placaDispenserBars').innerHTML = barsHTML(pdRows, Math.max(placaSi,dispSi,1));
+}
+
+// ---- City progress cards (siempre calcula sobre todas las ciudades, para comparar avance) ----
+let cityViewMode = 'todas'; // todas | avance | pendientes
+let citySortMode = 'total';
+let cityQuery = '';
+
+function computeCityStats(){
+  const ciudades = [...new Set(DATA.map(d=>norm(d.CIUDAD)).filter(Boolean))];
+  return ciudades.map(c => {
+    const rows = DATA.filter(d => norm(d.CIUDAD) === c);
+    const total = rows.length;
+    const efectivo = rows.filter(d=>d.STATUS==='EFECTIVO').length;
+    const placaSi = rows.filter(d=>d.PLACA==='SI').length;
+    const dispSi = rows.filter(d=>d.DISPENSER==='SI').length;
+    const pctEjec = total? (efectivo/total*100):0;
+    return {
+      ciudad: c, total,
+      pctEjec,
+      pctPlaca: total? (placaSi/total*100):0,
+      pctDisp: total? (dispSi/total*100):0,
+      efectivo, placaSi, dispSi
+    };
+  });
+}
+
+function renderCityProgress(){
+  let stats = computeCityStats();
+
+  if(cityQuery){
+    stats = stats.filter(s => s.ciudad.toLowerCase().includes(cityQuery));
+  }
+  if(cityViewMode === 'avance') stats = stats.filter(s => s.pctEjec > 0);
+  if(cityViewMode === 'pendientes') stats = stats.filter(s => s.pctEjec === 0);
+
+  if(citySortMode === 'total') stats.sort((a,b)=> b.total - a.total);
+  else if(citySortMode === 'avance_desc') stats.sort((a,b)=> b.pctEjec - a.pctEjec);
+  else if(citySortMode === 'avance_asc') stats.sort((a,b)=> a.pctEjec - b.pctEjec);
+  else if(citySortMode === 'az') stats.sort((a,b)=> a.ciudad.localeCompare(b.ciudad));
+
+  if(!stats.length){
+    document.getElementById('cityProgress').innerHTML = '<div style="color:var(--text-dim);font-size:13px;padding:8px 2px;">No hay ciudades que coincidan con el filtro.</div>';
+    return;
+  }
+
+  document.getElementById('cityProgress').innerHTML = stats.map(s => `
+    <div class="city-card ${s.ciudad===globalCiudad?'active':''}" data-ciudad="${s.ciudad}">
+      <div class="row1">
+        <span class="cname">${s.ciudad}</span>
+        <span class="ctotal">${s.total} tiendas</span>
+      </div>
+      <div class="progress-mini">
+        <div class="pm">
+          <div class="pm-label"><span>Ejecución</span><span>${s.efectivo}/${s.total} (${s.pctEjec.toFixed(0)}%)</span></div>
+          <div class="pm-track"><div class="pm-fill ejec" style="width:${s.pctEjec.toFixed(1)}%"></div></div>
+        </div>
+        <div class="pm">
+          <div class="pm-label"><span>Placa</span><span>${s.placaSi}/${s.total} (${s.pctPlaca.toFixed(0)}%)</span></div>
+          <div class="pm-track"><div class="pm-fill placa" style="width:${s.pctPlaca.toFixed(1)}%"></div></div>
+        </div>
+        <div class="pm">
+          <div class="pm-label"><span>Dispenser</span><span>${s.dispSi}/${s.total} (${s.pctDisp.toFixed(0)}%)</span></div>
+          <div class="pm-track"><div class="pm-fill disp" style="width:${s.pctDisp.toFixed(1)}%"></div></div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  document.querySelectorAll('.city-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const c = card.getAttribute('data-ciudad');
+      globalCiudad = (globalCiudad === c) ? '' : c;
+      document.getElementById('fCiudadGlobal').value = globalCiudad;
+      document.getElementById('fCiudad').value = globalCiudad;
+      onGlobalCiudadChange(false);
+    });
+  });
+}
+
+document.getElementById('cityBusca').addEventListener('input', (e) => {
+  cityQuery = e.target.value.trim().toLowerCase();
+  renderCityProgress();
+});
+document.getElementById('citySort').addEventListener('change', (e) => {
+  citySortMode = e.target.value;
+  renderCityProgress();
+});
+function setCityViewMode(mode){
+  cityViewMode = mode;
+  document.querySelectorAll('.toggle-btn').forEach(b=>b.classList.remove('active'));
+  const idMap = {todas:'toggleTodas', avance:'toggleAvance', pendientes:'togglePend'};
+  document.getElementById(idMap[mode]).classList.add('active');
+  renderCityProgress();
+}
+document.getElementById('toggleTodas').addEventListener('click', () => setCityViewMode('todas'));
+document.getElementById('toggleAvance').addEventListener('click', () => setCityViewMode('avance'));
+document.getElementById('togglePend').addEventListener('click', () => setCityViewMode('pendientes'));
+
+// ---- Filters population ----
+function uniqueSorted(field){
+  return [...new Set(DATA.map(d=>norm(d[field])).filter(Boolean))].sort();
+}
+function fillSelect(id, values){
+  const sel = document.getElementById(id);
+  values.forEach(v => {
+    const opt = document.createElement('option');
+    opt.value = v; opt.textContent = v;
+    sel.appendChild(opt);
+  });
+}
+fillSelect('fCiudadGlobal', uniqueSorted('CIUDAD'));
+fillSelect('fCiudad', uniqueSorted('CIUDAD'));
+fillSelect('fStatus', ['EFECTIVO','NO EFECTIVO','PENDIENTE']);
+fillSelect('fPlaca', ['SI','NO','PENDIENTE']);
+fillSelect('fDispenser', ['SI','NO','PENDIENTE']);
+fillSelect('fTipo', uniqueSorted('D. TAMBO'));
+
+function badgeClass(status){
+  if(status==='EFECTIVO' || status==='SI') return 'si';
+  if(status==='NO EFECTIVO' || status==='NO') return 'no';
+  return 'pendiente';
+}
+
+function renderTable(){
+  const fCiudad = document.getElementById('fCiudad').value;
+  const fStatus = document.getElementById('fStatus').value;
+  const fPlaca = document.getElementById('fPlaca').value;
+  const fDispenser = document.getElementById('fDispenser').value;
+  const fTipo = document.getElementById('fTipo').value;
+  const q = document.getElementById('fBusca').value.trim().toLowerCase();
+
+  const rows = DATA.filter(d => {
+    if(fCiudad && norm(d.CIUDAD) !== fCiudad) return false;
+    if(fStatus && norm(d.STATUS) !== fStatus) return false;
+    if(fPlaca && norm(d.PLACA) !== fPlaca) return false;
+    if(fDispenser && norm(d.DISPENSER) !== fDispenser) return false;
+    if(fTipo && norm(d['D. TAMBO']) !== fTipo) return false;
+    if(q){
+      const hay = [d['ID STORE'], d['NOMBRE TT'], d.DISTRITO, d['DIRECCIÓN']].map(norm).join(' ').toLowerCase();
+      if(!hay.includes(q)) return false;
+    }
+    return true;
+  });
+
+  document.getElementById('countTag').textContent = `${rows.length} de ${DATA.length} tiendas`;
+
+  document.getElementById('tbody').innerHTML = rows.map(d => `
+    <tr>
+      <td>${norm(d['ID STORE'])}</td>
+      <td>${norm(d['NOMBRE TT'])}</td>
+      <td>${norm(d.CIUDAD)}</td>
+      <td>${norm(d.DISTRITO)}</td>
+      <td>${norm(d['F. EJECUCIÓM'])}</td>
+      <td><span class="badge ${badgeClass(d.STATUS)}">${norm(d.STATUS)}</span></td>
+      <td><span class="badge ${badgeClass(d.PLACA)}">${norm(d.PLACA)}</span></td>
+      <td><span class="badge ${badgeClass(d.DISPENSER)}">${norm(d.DISPENSER)}</span></td>
+      <td>${norm(d.CIGARRERA)}</td>
+      <td>${norm(d['CANTIDAD '])}</td>
+      <td>${norm(d['D. TAMBO'])}</td>
+      <td class="obs-cell">${norm(d.OBSERVACIONES)}</td>
+      <td>${d['LINK FOTO'] ? `<a class="foto-link" href="${d['LINK FOTO']}" target="_blank">Ver foto</a>` : ''}</td>
+    </tr>
+  `).join('');
+}
+
+function onGlobalCiudadChange(fromSelect){
+  if(fromSelect){
+    globalCiudad = document.getElementById('fCiudadGlobal').value;
+    document.getElementById('fCiudad').value = globalCiudad;
+  }
+  document.getElementById('globalHint').textContent = globalCiudad
+    ? `Mostrando KPIs y gráficos solo de ${globalCiudad}. Haz clic de nuevo en la tarjeta o elige "Todas" para quitar el filtro.`
+    : 'Selecciona una ciudad para enfocar KPIs, gráficos y tabla en esa ciudad.';
+  renderKPIsAndCharts();
+  renderCityProgress();
+  renderTable();
+}
+
+document.getElementById('fCiudadGlobal').addEventListener('change', () => onGlobalCiudadChange(true));
+
+['fCiudad','fStatus','fPlaca','fDispenser','fTipo'].forEach(id => {
+  document.getElementById(id).addEventListener('change', () => {
+    if(id === 'fCiudad'){
+      globalCiudad = document.getElementById('fCiudad').value;
+      document.getElementById('fCiudadGlobal').value = globalCiudad;
+      renderKPIsAndCharts();
+      renderCityProgress();
+      document.getElementById('globalHint').textContent = globalCiudad
+        ? `Mostrando KPIs y gráficos solo de ${globalCiudad}.`
+        : 'Selecciona una ciudad para enfocar KPIs, gráficos y tabla en esa ciudad.';
+    }
+    renderTable();
+  });
+});
+document.getElementById('fBusca').addEventListener('input', renderTable);
+
+onGlobalCiudadChange(false);
+</script>
+</body>
+</html>
